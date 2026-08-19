@@ -1,0 +1,36 @@
+# --- 데이터 (용량이 커서 저장소에 포함하지 않음) ---
+# Statcast 원본 CSV는 notebooks/ 의 다운로드 셀로 재생성 가능
+data/
+*.csv
+*.parquet
+
+# --- 아카이브 / 임시 ---
+_archive/
+*.zip
+*.z0*
+*.7z
+
+# --- 파이썬 ---
+.venv/
+venv/
+baseball_env/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- 도구 ---
+.claude/
+.streamlit/secrets.toml
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- 학습 산출물 (models/ 의 배포용 체크포인트는 예외로 추적) ---
+runs/
+outputs/
+*.log
+!models/*.pth
+!models/*.pkl

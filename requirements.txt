@@ -1,0 +1,12 @@
+# 앱 실행 + 로컬 평가
+torch>=2.2
+streamlit>=1.36
+plotly>=5.22
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+joblib>=1.4
+
+# 데이터 수집 (notebooks/01_download_statcast.ipynb)
+pybaseball>=2.2.7
+pyarrow>=15.0

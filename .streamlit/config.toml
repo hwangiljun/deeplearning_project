@@ -1,0 +1,15 @@
+# 밝은 테마로 고정한다. 야구 분석 도구(Baseball Savant, FanGraphs)의 관례이고,
+# 차트 팔레트도 밝은 표면(#fcfcfb)에서 검증했다.
+[theme]
+base = "light"
+primaryColor = "#2a78d6"
+backgroundColor = "#f9f9f7"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#0b0b0b"
+font = "sans serif"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
