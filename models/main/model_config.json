@@ -1,0 +1,30 @@
+{
+  "cat_sizes": {
+    "batter": 624,
+    "pitcher": 802,
+    "pitch_type": 20,
+    "stand": 3,
+    "p_throws": 3
+  },
+  "n_pitch_features": 8,
+  "n_context_features": 15,
+  "n_classes": 10,
+  "d_model": 128,
+  "nhead": 4,
+  "num_layers": 2,
+  "dim_feedforward": 512,
+  "dropout": 0.2,
+  "seq_len": 6,
+  "embed_dims": [
+    32,
+    32,
+    8,
+    2,
+    2
+  ],
+  "context_dim": 32,
+  "use_context_skip": true,
+  "use_state_embed": true,
+  "pooling": "mean",
+  "predict_run_value": true
+}

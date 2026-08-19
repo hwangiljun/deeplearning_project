@@ -55,6 +55,39 @@ def _curve(history: list[dict]) -> go.Figure:
     return fig
 
 
+def _ablation_table() -> pd.DataFrame | None:
+    """어블레이션 결과를 표로. ``ablation.json`` 을 우선 읽는다.
+
+    노트북의 요약 표 셀(csv 생성)을 실행하지 않아도 되도록, 루프가 저장한
+    원본 json 에서 직접 만든다.
+    """
+    for path in (MODELS / "ablation.json", MODEL_DIR / "ablation.json"):
+        if path.exists():
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            rows = []
+            for name, v in raw.items():
+                test = v.get("test", {})
+                rows.append({
+                    "구성": name,
+                    "log-loss": round(test.get("log_loss", float("nan")), 4),
+                    "macro-AUC": round(test.get("macro_auc", float("nan")), 4),
+                    "정확도(%)": round(test.get("accuracy", float("nan")) * 100, 2),
+                    "macro-F1": round(test.get("macro_f1", float("nan")), 4),
+                    "에폭": v.get("epochs"),
+                })
+            t = pd.DataFrame(rows).sort_values("log-loss").reset_index(drop=True)
+            # 기준선(full) 대비 차이를 함께 보여준다
+            if "full" in t["구성"].values:
+                base = t.loc[t["구성"] == "full", "log-loss"].iat[0]
+                t["full 대비"] = (t["log-loss"] - base).round(4)
+            return t
+
+    for path in (MODELS / "ablation_table.csv", MODEL_DIR / "ablation_table.csv"):
+        if path.exists():
+            return pd.read_csv(path)
+    return None
+
+
 def render(res):
     st.markdown("## 모델 성능")
 
@@ -134,18 +167,15 @@ def render(res):
                          height=400)
 
     # ---- 어블레이션 ----
-    ab = MODELS / "ablation_table.csv"
-    if not ab.exists():
-        ab = MODELS / "main" / "ablation_table.csv"
     st.markdown('<div class="sep"></div>', unsafe_allow_html=True)
     st.markdown("### 어블레이션")
     st.markdown('<p class="caption">한 번에 한 요소만 바꿔 기여를 분리합니다. '
                 '특히 <code>seq_len_1</code> 은 직전 투구 정보를 완전히 제거한 조건이라, '
                 '전체 모델이 이를 이기지 못하면 "투구 배합이 중요하다"는 전제가 성립하지 않습니다.</p>',
                 unsafe_allow_html=True)
-    if ab.exists():
-        t = pd.read_csv(ab)
+    t = _ablation_table()
+    if t is not None:
         st.dataframe(t, width="stretch", hide_index=True)
     else:
-        st.info("어블레이션 결과가 없습니다 (`models/ablation_table.csv`). "
+        st.info("어블레이션 결과가 없습니다 (`models/ablation.json`). "
                 "`notebooks/02_train.ipynb` 의 어블레이션 셀을 실행하세요.")
