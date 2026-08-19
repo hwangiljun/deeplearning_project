@@ -110,19 +110,35 @@ def load_resources() -> tuple[Resources, list[str]]:
 
 
 # --------------------------------------------------------------------------
+def min_pitches_setting(default: int = 200) -> int:
+    """사이드바에서 정한 최소 표본. 페이지마다 따로 두지 않고 하나로 관리한다."""
+    return int(st.session_state.get("min_pitches", default))
+
+
 def player_options(profiles, role: str, season: int | None = None,
-                   team: str | None = None, min_pitches: int = 200):
+                   team: str | None = None, min_pitches: int | None = None):
     """(표시 이름, 선수 ID) 목록. 팀·시즌으로 좁힌다."""
+    return player_options_counted(profiles, role, season, team, min_pitches)[0]
+
+
+def player_options_counted(profiles, role: str, season: int | None = None,
+                           team: str | None = None, min_pitches: int | None = None):
+    """``(목록, 필터 전 인원수)``. 목록이 비었을 때 이유를 알려 주기 위해 총원도 준다."""
+    if min_pitches is None:
+        min_pitches = min_pitches_setting()
+
     d = profiles.directory
     d = d[d["role"] == role]
     if season is not None:
         d = d[d["season"] == season]
     if team and team != "전체":
         d = d[d["team"] == team]
-    d = d[d["pitches"] >= min_pitches]
-    d = d.sort_values("pitches", ascending=False)
-    return [(f"{r['name']}  ·  {r['team']}", str(r["player_id"]))
+    total = len(d)
+
+    d = d[d["pitches"] >= min_pitches].sort_values("pitches", ascending=False)
+    opts = [(f"{r['name']}  ·  {r['team']}", str(r["player_id"]))
             for _, r in d.iterrows()]
+    return opts, total
 
 
 def team_options(profiles, season: int | None = None) -> list[str]:
@@ -134,4 +150,11 @@ def team_options(profiles, season: int | None = None) -> list[str]:
 
 
 def seasons_available(profiles) -> list[int]:
-    return sorted(profiles.directory["season"].unique().tolist(), reverse=True)
+    """시즌 목록. 표본이 가장 많은 시즌을 앞에 둔다.
+
+    최신 시즌을 기본값으로 두면, 그 시즌 데이터가 아직 적을 때 화면이 통째로
+    비어 보인다. 실제로 볼 게 있는 시즌이 먼저 열리도록 한다.
+    """
+    d = profiles.directory
+    order = d.groupby("season")["pitches"].sum().sort_values(ascending=False)
+    return [int(s) for s in order.index]

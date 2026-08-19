@@ -13,7 +13,8 @@ import pandas as pd
 import streamlit as st
 
 from . import charts
-from .loaders import player_options, seasons_available, team_options
+from .loaders import (min_pitches_setting, player_options_counted,
+                      seasons_available, team_options)
 from .theme import INK_2, MUTED, SUCCESS_TEXT, STATUS, pitch_label, tiles
 
 PCT = lambda v: "—" if pd.isna(v) else f"{v*100:.1f}%"          # noqa: E731
@@ -27,11 +28,14 @@ def _scope_controls(profiles, key: str, role: str):
     season = c1.selectbox("시즌", seasons, key=f"{key}_season")
     team = c2.selectbox("팀", team_options(profiles, season), key=f"{key}_team")
 
-    opts = player_options(profiles, role, season, team)
+    opts, total = player_options_counted(profiles, role, season, team)
     if not opts:
-        c3.warning("조건에 맞는 선수가 없습니다. 팀이나 시즌을 바꿔 보세요.")
+        c3.warning(
+            f"조건에 맞는 선수가 없습니다. 이 범위에 {total}명이 있지만 모두 "
+            f"최소 표본({min_pitches_setting():,}구) 미만입니다. "
+            "사이드바에서 최소 표본을 낮추거나 시즌을 바꿔 보세요.")
         return season, team, None, None
-    label = c3.selectbox("타자" if role == "batter" else "투수",
+    label = c3.selectbox(f"{'타자' if role == 'batter' else '투수'} ({len(opts)}/{total}명)",
                          [o[0] for o in opts], key=f"{key}_player")
     pid = dict(opts)[label]
     return season, team, pid, label

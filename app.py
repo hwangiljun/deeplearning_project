@@ -60,6 +60,13 @@ with st.sidebar:
                 st.markdown(f'<p class="caption">· {w}</p>', unsafe_allow_html=True)
 
     st.markdown('<div class="sep"></div>', unsafe_allow_html=True)
+    st.number_input(
+        "최소 표본 (투구 수)", min_value=0, max_value=3000, value=200, step=50,
+        key="min_pitches",
+        help="이보다 적게 던진/상대한 선수는 목록에서 제외합니다. "
+             "표본이 적으면 지표가 불안정해지지만, 데이터가 적을 때는 낮추세요.")
+
+    st.markdown('<div class="sep"></div>', unsafe_allow_html=True)
     st.markdown(
         '<p class="caption">기대 실점은 <b>공격 팀 관점</b>입니다.<br>'
         '양수(빨강) = 타자 유리 · 음수(파랑) = 투수 유리</p>',

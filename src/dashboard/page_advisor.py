@@ -21,7 +21,8 @@ import streamlit as st
 from ..data import OUTCOMES
 from ..recommend import GameState, apply_command_window, score_candidates, top_k
 from . import charts
-from .loaders import player_options, seasons_available, team_options
+from .loaders import (min_pitches_setting, player_options_counted,
+                      seasons_available, team_options)
 from .theme import (INK, INK_2, MUTED, STATUS, SUCCESS_TEXT, pitch_color,
                     pitch_label, tiles)
 
@@ -31,11 +32,14 @@ PITCH_ORDER = ["FF", "SI", "FC", "SL", "ST", "CU", "CH", "FS"]
 def _pick_player(profiles, role: str, season: int, key: str, label: str):
     c1, c2 = st.columns([1, 2])
     team = c1.selectbox(f"{label} 팀", team_options(profiles, season), key=f"{key}_team")
-    opts = player_options(profiles, role, season, team)
+    opts, total = player_options_counted(profiles, role, season, team)
     if not opts:
-        c2.warning("해당 조건의 선수가 없습니다.")
+        c2.warning(f"조건에 맞는 선수가 없습니다 (이 범위 {total}명이 모두 "
+                   f"최소 표본 {min_pitches_setting():,}구 미만). "
+                   "사이드바에서 최소 표본을 낮춰 보세요.")
         return None, None
-    name = c2.selectbox(label, [o[0] for o in opts], key=f"{key}_p")
+    name = c2.selectbox(f"{label} ({len(opts)}/{total}명)",
+                        [o[0] for o in opts], key=f"{key}_p")
     return dict(opts)[name], name
 
 

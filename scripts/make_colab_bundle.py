@@ -20,7 +20,8 @@ with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
             if any(part in SKIP_DIRS for part in p.parts):
                 continue
             z.write(p, p.relative_to(ROOT))
-    for extra in ["requirements.txt"]:
+    # 코드 외에 노트북이 참조하는 작은 자산도 함께 넣는다
+    for extra in ["requirements.txt", "models/legacy/player_mapping.pkl"]:
         f = ROOT / extra
         if f.exists():
             z.write(f, extra)
