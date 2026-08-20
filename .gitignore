@@ -36,3 +36,6 @@ outputs/
 !models/*.pkl
 !models/*.csv
 !models/**/*.csv
+
+# 보고서 그림은 추적한다 (build_report.py 가 참조)
+!reports/figures/*.png
